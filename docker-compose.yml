@@ -1,0 +1,38 @@
+version: '3.8'
+
+services:
+  redis:
+    image: redis:latest
+    container_name: redis_container1
+    environment:
+      - REDIS_USER_PASSWORD=${BOT_REDIS_USER_PASSWORD}
+    ports:
+      - 6379:6379
+    volumes:
+      - ./redisdata:/data
+    restart: unless-stopped
+    command: redis-server --requirepass ${BOT_REDIS_USER_PASSWORD}
+
+  nats:
+    image: nats:2.11-alpine
+    ports:
+      - "4222:4222"
+
+  postgres:
+    image: postgres:latest
+    container_name: postgres_fastApi
+    restart: always
+    environment:
+      POSTGRES_USER: ${SERVER_DB_USER}
+      POSTGRES_PASSWORD: ${SERVER_DB_PASS}
+      POSTGRES_DB: ${SERVER_DB_NAME}
+    ports:
+      - "${SERVER_DB_PORT}:5432"
+    volumes:
+      - ./pg_data:/var/lib/postgresql/data
+    env_file:
+      - .env
+
+volumes:
+  redis_data:
+  pg_data:
